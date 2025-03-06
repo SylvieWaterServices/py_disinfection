@@ -18,7 +18,7 @@
 
 maxC = [0.5, 5, 10, 15, 20, 25]
 maxFreeChlorine = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3]
-maxpH = [6, 6.5, 7, 7.5, 8, 8.5, 9]
+maxpH = [6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9]
 
 
 giardia_3log_ct_values_free_chlorine = [
@@ -127,8 +127,8 @@ giardia_3log_ct_values_free_chlorine = [
 
 # x is max degrees C
 # y is max pH
-maxC = [0.5, 5, 10, 15, 20, 25]
-maxpH = [6, 9, 10]
+max_virus_C = [0.5, 5, 10, 15, 20, 25]
+max_virus_pH = [6, 9, 10]
 
 virus_4log_ct_values_free_chlorine = [
     [0, 12, 90],  # max of 0.5 degrees C

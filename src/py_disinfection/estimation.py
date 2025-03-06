@@ -1,6 +1,6 @@
 # Conservative Estimate
 import math
-from tables import giardia_3log_ct_values_free_chlorine, maxC, maxpH, maxFreeChlorine
+from .tables import giardia_3log_ct_values_free_chlorine, maxC, maxpH, maxFreeChlorine
 
 
 # Conservative Method
@@ -11,9 +11,10 @@ def conservative_ct(temp, ph, chlorine_conc):
     rounded_ph = min(
         p for p in maxpH if p >= ph
     )  # Round up pH - take the lowest value of the values greater than or equal to the pH
-    rounded_chlorine = max(
-        c for c in maxFreeChlorine if c <= chlorine_conc
-    )  # Round down chlorine - take the highest value of the values less than or equal to the chlorine concentration
+    rounded_chlorine = min(
+        c for c in maxFreeChlorine if c >= chlorine_conc
+    )  # Round up chlorine - take the lowest value of the values more than or equal to the chlorine concentration
+    # This is counter-intuitive but results in a conservative estimate
 
     temp_idx = maxC.index(rounded_temp)
     chlorine_idx = maxFreeChlorine.index(rounded_chlorine)
@@ -24,6 +25,7 @@ def conservative_ct(temp, ph, chlorine_conc):
 
 # Interpolation Method
 def interpolate_ct(temp, ph, chlorine_conc):
+
     def linear_interpolate(x1, x2, y1, y2, x):
         return y1 + (y2 - y1) * ((x - x1) / (x2 - x1)) if x2 != x1 else y1
 
