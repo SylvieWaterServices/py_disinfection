@@ -1,10 +1,18 @@
 # Conservative Estimate
 import math
-from .tables import giardia_3log_ct_values_free_chlorine, maxC, maxpH, maxFreeChlorine
+from py_disinfection.tables import (
+    giardia_3log_ct_values_free_chlorine,
+    virus_4log_ct_values_free_chlorine,
+    maxC,
+    maxpH,
+    maxFreeChlorine,
+    max_virus_C,
+    max_virus_pH,
+)
 
 
 # Conservative Method
-def conservative_ct(temp, ph, chlorine_conc):
+def conservative_giardia_ct(temp, ph, chlorine_conc):
     rounded_temp = max(
         t for t in maxC if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
@@ -24,7 +32,7 @@ def conservative_ct(temp, ph, chlorine_conc):
 
 
 # Interpolation Method
-def interpolate_ct(temp, ph, chlorine_conc):
+def interpolate_giardia_ct(temp, ph, chlorine_conc):
 
     def linear_interpolate(x1, x2, y1, y2, x):
         return y1 + (y2 - y1) * ((x - x1) / (x2 - x1)) if x2 != x1 else y1
@@ -111,7 +119,7 @@ def interpolate_ct(temp, ph, chlorine_conc):
 
 
 # Regression Method
-def regression_ct(temp, ph, chlorine_conc, log_inactivation=3):
+def regression_giardia_ct(temp, ph, chlorine_conc, log_inactivation=3):
     if temp < 12.5:
         return (0.353 * log_inactivation) * (
             12.006 + math.exp(2.46 - 0.073 * temp + 0.125 * chlorine_conc + 0.389 * ph)
@@ -120,3 +128,18 @@ def regression_ct(temp, ph, chlorine_conc, log_inactivation=3):
         return (0.361 * log_inactivation) * (
             -2.261 + math.exp(2.69 - 0.065 * temp + 0.111 * chlorine_conc + 0.361 * ph)
         )
+
+
+def conservative_viruses_ct(temp, ph):
+    rounded_temp = max(
+        t for t in max_virus_C if t <= temp
+    )  # Round down temperature - take the highest value of the values less than or equal to the temperature
+    rounded_ph = min(
+        p for p in max_virus_pH if p >= ph
+    )  # Round up pH - take the lowest value of the values greater than or equal to the pH
+    # This is counter-intuitive but results in a conservative estimate
+
+    temp_idx = max_virus_C.index(rounded_temp)
+    ph_idx = max_virus_pH.index(rounded_ph)
+
+    return virus_4log_ct_values_free_chlorine[temp_idx][ph_idx]

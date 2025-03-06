@@ -5,21 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "py_disinfection"
 version = "0.1.0"
-description = "Library and command to calculate detention times, disinfectant residuals, and CT ratios for drinking water tanks"
+description = "Library and command to calculate detention times, disinfectant residuals, and CT ratios for drinking water systems"
 readme = "README.rst"
 authors = [
-  {name = "Todd Bryan", email = "todd@cabin31.com"}
+  {name = "Sylvie Water Systems", email = "hello@sylviewater.com"}
 ]
 maintainers = [
-  {name = "Todd Bryan", email = "todd@cabin31.com"}
+  {name = "Sylvie Water Systems", email = "hello@sylviewater.com"}
 ]
 classifiers = [
 
 ]
 license = {text = "BSD license"}
-dependencies = [
-  
-]
+dependencies = ["typer", "rich"]
+
+[project.scripts]
+disinfect = "py_disinfection.cli:app"
 
 [project.optional-dependencies]
 dev = [
