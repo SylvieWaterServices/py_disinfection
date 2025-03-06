@@ -1,14 +1,13 @@
 """Console script for py_disinfection."""
 
+import json
 import typer
 from rich.console import Console
 
-# from py_disinfection.estimation import conservative_ct, interpolate_ct, regression_ct
 from py_disinfection.py_disinfection import (
     CTReqEstimator,
     DisinfectionSegment,
     DisinfectionSegmentOptions,
-    DisinfectionTarget,
     DisinfectantAgent,
 )
 
@@ -24,41 +23,6 @@ def convert_temperature(temp: float, unit: str) -> float:
     if unit.lower() == "f":
         return (temp - 32) * 5.0 / 9.0
     return temp
-
-
-# @app.command()
-# def estimate_ct(
-#     temp: float = typer.Option(..., "-t", "--temp", help="Temperature value"),
-#     temp_unit: str = typer.Option(
-#         "C", "-u", "--temp-unit", help="Temperature unit: C or F"
-#     ),
-#     ph: float = typer.Option(..., "-p", "--ph", help="pH level"),
-#     chlorine: float = typer.Option(
-#         ..., "-c", "--concentration", help="Disinfectant concentration in mg/L"
-#     ),
-#     method: str = typer.Option(
-#         ...,
-#         "-m",
-#         "--method",
-#         help="Estimation method: conservative, interpolation, regression",
-#     ),
-# ):
-#     """Estimate CT based on method (conservative, interpolation, regression)."""
-#     temp_celsius = convert_temperature(temp, temp_unit)
-
-#     if method == "conservative":
-#         ct = conservative_ct(temp_celsius, ph, chlorine)
-#     elif method == "interpolation":
-#         ct = interpolate_ct(temp_celsius, ph, chlorine)
-#     elif method == "regression":
-#         ct = regression_ct(temp_celsius, ph, chlorine)
-#     else:
-#         console.print(
-#             "[red]Invalid method. Use 'conservative', 'interpolation', or 'regression'.[/red]"
-#         )
-#         return
-
-#     console.print(f"Estimated CT: [green]{ct} min-mg/L[/green]")
 
 
 @app.command()
@@ -92,6 +56,9 @@ def analyze_segment(
     ),
     peak_flow: float = typer.Option(
         ..., "-f", "--peak-flow", help="Peak hourly flow in gallons per minute"
+    ),
+    json_output: bool = typer.Option(
+        False, "--json", help="Print output in JSON format"
     ),
 ):
     """Analyze a disinfection segment and print results."""
@@ -130,13 +97,19 @@ def analyze_segment(
     segment = DisinfectionSegment(options)
     results = segment.analyze()
 
-    console.print("[bold yellow]Segment Parameters:[/bold yellow]")
-    for key, value in options.__dict__.items():
-        console.print(f"{key}: [cyan]{value}[/cyan]")
+    if json_output:
+        jparams = options.__json__()
+        jparams["temp_fahrenheit"] = temp_celsius * 9 / 5 + 32
+        total_results = {"parameters": jparams, "results": results}
+        console.print(json.dumps(total_results, indent=4))
+    else:
+        console.print("[bold yellow]Segment Parameters:[/bold yellow]")
+        for key, value in options.__dict__.items():
+            console.print(f"{key}: [cyan]{value}[/cyan]")
 
-    console.print("\n[bold green]Disinfection Analysis Results:[/bold green]")
-    for key, value in results.items():
-        console.print(f"{key}: [cyan]{value}[/cyan]")
+        console.print("\n[bold green]Disinfection Analysis Results:[/bold green]")
+        for key, value in results.items():
+            console.print(f"{key}: [cyan]{value}[/cyan]")
 
 
 if __name__ == "__main__":

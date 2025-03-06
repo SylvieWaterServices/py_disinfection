@@ -67,6 +67,18 @@ class DisinfectionSegmentOptions:
         self.ctreq_estimator = ctreq_estimator
         self.baffling_factor = baffling_factor
 
+    def __json__(self):
+        return {
+            "agent": self.agent.name,
+            "volume_gallons": self.volume_gallons,
+            "temperature_celsius": self.temperature_celsius,
+            "ph": self.ph,
+            "concentration_mg_per_liter": self.concentration_mg_per_liter,
+            "peak_hourly_flow_gallons_per_minute": self.peak_hourly_flow_gallons_per_minute,
+            "ctreq_estimator": self.ctreq_estimator.name,
+            "baffling_factor": self.baffling_factor,
+        }
+
 
 class DisinfectionSegment:
     def __init__(self, options: DisinfectionSegmentOptions):
