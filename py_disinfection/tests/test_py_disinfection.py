@@ -1,21 +1,32 @@
-#!/usr/bin/env python
-
-"""Tests for `py_disinfection` package."""
-
-
-import unittest
-
-from py_disinfection import py_disinfection
+import pytest
+from py_disinfection.estimation import conservative_ct, interpolate_ct, regression_ct
 
 
-class TestPy_disinfection(unittest.TestCase):
-    """Tests for `py_disinfection` package."""
+@pytest.mark.parametrize(
+    "temp, ph, chlorine_conc, expected",
+    [
+        (6.0, 6.7, 0.9, 149),
+    ],
+)
+def test_conservative_ct(temp, ph, chlorine_conc, expected):
+    assert conservative_ct(temp, ph, chlorine_conc) == expected
 
-    def setUp(self):
-        """Set up test fixtures, if any."""
 
-    def tearDown(self):
-        """Tear down test fixtures, if any."""
+@pytest.mark.parametrize(
+    "temp, ph, chlorine_conc, expected",
+    [
+        (6.0, 6.7, 0.9, 126.5),
+    ],
+)
+def test_interpolate_ct(temp, ph, chlorine_conc, expected):
+    assert pytest.approx(interpolate_ct(temp, ph, chlorine_conc), rel=1e-2) == expected
 
-    def test_000_something(self):
-        """Test something."""
+
+@pytest.mark.parametrize(
+    "temp, ph, chlorine_conc, expected",
+    [
+        (6.0, 6.7, 0.9, 134),
+    ],
+)
+def test_regression_ct(temp, ph, chlorine_conc, expected):
+    assert pytest.approx(regression_ct(temp, ph, chlorine_conc), rel=1e-2) == expected
