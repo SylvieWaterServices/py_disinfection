@@ -154,47 +154,28 @@ class DisinfectionSegment:
             )
 
     def _required_ct_giardia_chlorine_dioxide(self):
-        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
-            return conservative_giardia_chlorine_dioxide_ct(
-                self.options.temperature_celsius
-            )
-        raise InvalidEstimatorError(
-            f"{self.options.ctreq_estimator.name} not supported for giardia and chlorine dioxide"
+
+        return conservative_giardia_chlorine_dioxide_ct(
+            self.options.temperature_celsius
         )
 
     def _required_ct_giardia_chloramines(self):
-        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
-            return conservative_giardia_chloramines_ct(self.options.temperature_celsius)
-        raise InvalidEstimatorError(
-            f"{self.options.ctreq_estimator.name} not supported for giardia and chloramines"
-        )
+        return conservative_giardia_chloramines_ct(self.options.temperature_celsius)
 
     def _required_ct_viruses_free_chlorine(self):
-        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
-            return conservative_viruses_ct(
-                self.options.temperature_celsius,
-                self.options.ph,
-            )
-        raise InvalidEstimatorError(
-            f"{self.options.ctreq_estimator.name} not supported for viruses and free chlorine"
+        return conservative_viruses_ct(
+            self.options.temperature_celsius,
+            self.options.ph,
         )
 
     def _required_ct_viruses_chlorine_dioxide(self):
-        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
-            return conservative_viruses_chlorine_dioxide_ct(
-                self.options.temperature_celsius,
-            )
-        raise InvalidEstimatorError(
-            f"{self.options.ctreq_estimator.name} not supported for viruses and chlorine dioxide"
+        return conservative_viruses_chlorine_dioxide_ct(
+            self.options.temperature_celsius,
         )
 
     def _required_ct_viruses_chloramines(self):
-        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
-            return conservative_viruses_chloramines_ct(
-                self.options.temperature_celsius,
-            )
-        raise InvalidEstimatorError(
-            f"{self.options.ctreq_estimator.name} not supported for viruses and chloramines"
+        return conservative_viruses_chloramines_ct(
+            self.options.temperature_celsius,
         )
 
     def calculate_log_inactivation_ratio(self, target: DisinfectionTarget):
