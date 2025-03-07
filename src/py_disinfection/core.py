@@ -1,5 +1,6 @@
 """Main module."""
 
+import json
 import math
 from enum import Enum
 from typing import Dict
@@ -23,16 +24,10 @@ class DisinfectantAgent(Enum):
     CHLORINE_DIOXIDE = "chlorine_dioxide"
     CHLORAMINES = "chloramines"
 
-    def __json__(self) -> str:
-        return self.name
-
 
 class DisinfectionTarget(Enum):
     VIRUSES = "viruses"
     GIARDIA = "giardia"
-
-    def __json__(self) -> str:
-        return self.name
 
 
 class CTReqEstimator(Enum):
@@ -40,8 +35,22 @@ class CTReqEstimator(Enum):
     INTERPOLATION = "interpolation"
     REGRESSION = "regression"
 
-    def __json__(self) -> str:
-        return self.name
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Enum):  # Direct Enum Handling
+            return obj.value
+        elif hasattr(obj, "__dict__"):  # Handle custom classes
+            return {key: self.default(value) for key, value in obj.__dict__.items()}
+        elif isinstance(obj, dict):  # Recursive Dictionary Handling
+            return {key: self.default(value) for key, value in obj.items()}
+        elif isinstance(obj, list):  # Recursive List Handling
+            return [self.default(item) for item in obj]
+        elif isinstance(
+            obj, (int, float, str, bool, type(None))
+        ):  # ✅ Allow primitive types
+            return obj
+        return super().default(obj)  # Fallback to Default Behavior
 
 
 DEFAULT_DISINFECTION_AGENT = DisinfectantAgent.FREE_CHLORINE
@@ -71,17 +80,17 @@ class DisinfectionSegmentOptions(BaseModel):
     agent: DisinfectantAgent = Field(..., description="Disinfectant agent")
     ctreq_estimator: CTReqEstimator = Field(..., description="Estimation method")
 
-    def __json__(self) -> Dict[str, float | str]:
-        return {
-            "agent": self.agent.name,
-            "volume_gallons": self.volume_gallons,
-            "temperature_celsius": self.temperature_celsius,
-            "ph": self.ph,
-            "concentration_mg_per_liter": self.concentration_mg_per_liter,
-            "peak_hourly_flow_gallons_per_minute": self.peak_hourly_flow_gallons_per_minute,
-            "ctreq_estimator": self.ctreq_estimator.name,
-            "baffling_factor": self.baffling_factor,
-        }
+    # def __json__(self) -> Dict[str, float | str]:
+    #     return {
+    #         "agent": self.agent.value,
+    #         "volume_gallons": self.volume_gallons,
+    #         "temperature_celsius": self.temperature_celsius,
+    #         "ph": self.ph,
+    #         "concentration_mg_per_liter": self.concentration_mg_per_liter,
+    #         "peak_hourly_flow_gallons_per_minute": self.peak_hourly_flow_gallons_per_minute,
+    #         "ctreq_estimator": self.ctreq_estimator.value,
+    #         "baffling_factor": self.baffling_factor,
+    #     }
 
 
 class DisinfectionSegment:

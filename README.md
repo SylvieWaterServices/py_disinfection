@@ -36,6 +36,7 @@ Its internal tables for CT values are also taken from this document.  A PDF copy
 - **Multiple Disinfectant Agents** supported, including free chlorine, chloramines, and chlorine dioxide.
 - **Giardia and Virus Targets** for CT calculations.
 - **JSON Output Support** for easy integration with other systems.
+- **Tested on Python 3.6 - 3.13-0a2**, may work on other versions.
 
 ---
 

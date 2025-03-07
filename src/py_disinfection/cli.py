@@ -10,6 +10,7 @@ from py_disinfection.core import (
     DisinfectantAgent,
     DisinfectionSegment,
     DisinfectionSegmentOptions,
+    EnumEncoder,
 )
 
 app = typer.Typer(
@@ -96,7 +97,7 @@ def analyze_segment(
         return None
 
     if json_output:
-        jparams = json.loads(json.dumps(options))
+        jparams = json.loads(json.dumps(options, cls=EnumEncoder))
         jparams["temp_fahrenheit"] = temp_celsius * 9 / 5 + 32
         total_results = {"parameters": jparams, "results": results}
         console.print(json.dumps(total_results, indent=4))
