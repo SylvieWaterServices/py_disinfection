@@ -2,7 +2,7 @@
 
 import math
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from py_disinfection.estimation import (
     conservative_giardia_ct,
@@ -190,10 +190,6 @@ class DisinfectionSegment:
         elif target == DisinfectionTarget.VIRUSES:
             return 4 * self.calculate_log_inactivation_ratio(target)
         raise InvalidTargetError(f"Invalid disinfection target: {target}")
-
-        return 1 - self.calculate_inactivation_ratio(
-            concentration_mg_per_liter, target, agent
-        )
 
     def analyze(self):
         results = {}
