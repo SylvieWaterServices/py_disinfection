@@ -145,6 +145,7 @@ virus_4log_ct_values_free_chlorine = [
 # units are min-mg/L.
 
 # x is max degrees C: [1, 5, 10, 15, 20, 25]
+max_chlorine_dioxide_C = [1, 5, 10, 15, 20, 25]
 giardia_3log_ct_values_chlorine_dioxide = [63, 26, 23, 19, 15, 11]
 
 # EPA Guidance Manual B-3
@@ -178,6 +179,7 @@ virus_4log_ct_values_ozone = [1.8, 1.2, 1.0, 0.6, 0.5, 0.3]
 # units are min-mg/L.
 #
 # x is max degrees C: [1, 5, 10, 15, 20, 25]
+max_chloramines_C = [1, 5, 10, 15, 20, 25]
 giardia_3log_ct_values_chloramines = [3800, 2200, 1850, 1500, 100, 750]
 
 # EPA Guidance Manual B-4

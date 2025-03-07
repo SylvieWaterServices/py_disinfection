@@ -1,9 +1,11 @@
-from calendar import c
-import dis
 import pytest
-from py_disinfection.estimation import conservative_ct, interpolate_ct, regression_ct
+
+from py_disinfection.estimation import (
+    conservative_giardia_ct,
+    interpolate_giardia_ct,
+    regression_giardia_ct,
+)
 import py_disinfection.py_disinfection as py_d
-from src.py_disinfection.py_disinfection import DisinfectantAgent, DisinfectionTarget
 
 
 @pytest.mark.parametrize(
@@ -13,7 +15,7 @@ from src.py_disinfection.py_disinfection import DisinfectantAgent, DisinfectionT
     ],
 )
 def test_conservative_ct(temp, ph, chlorine_conc, expected):
-    assert conservative_ct(temp, ph, chlorine_conc) == expected
+    assert conservative_giardia_ct(temp, ph, chlorine_conc) == expected
 
 
 @pytest.mark.parametrize(
@@ -23,7 +25,10 @@ def test_conservative_ct(temp, ph, chlorine_conc, expected):
     ],
 )
 def test_interpolate_ct(temp, ph, chlorine_conc, expected):
-    assert pytest.approx(interpolate_ct(temp, ph, chlorine_conc), rel=1e-2) == expected
+    assert (
+        pytest.approx(interpolate_giardia_ct(temp, ph, chlorine_conc), rel=1e-2)
+        == expected
+    )
 
 
 @pytest.mark.parametrize(
@@ -33,7 +38,10 @@ def test_interpolate_ct(temp, ph, chlorine_conc, expected):
     ],
 )
 def test_regression_ct(temp, ph, chlorine_conc, expected):
-    assert pytest.approx(regression_ct(temp, ph, chlorine_conc), rel=1e-2) == expected
+    assert (
+        pytest.approx(regression_giardia_ct(temp, ph, chlorine_conc), rel=1e-2)
+        == expected
+    )
 
 
 # @pytest.mark.parametrize(
@@ -72,6 +80,10 @@ def test_tdt(gallons, flow, tdt):
     options = py_d.DisinfectionSegmentOptions(
         volume_gallons=gallons,
         peak_hourly_flow_gallons_per_minute=flow,
+        baffling_factor=0.1,
+        concentration_mg_per_liter=0.8,
+        temperature_celsius=0.5,
+        ph=6.0,
     )
     assert (
         pytest.approx(py_d.DisinfectionSegment(options).calculate_tdt(), rel=tdt / 100)
@@ -96,6 +108,9 @@ def test_contact_time(gallons, flow, bf, contact_time):
         volume_gallons=gallons,
         peak_hourly_flow_gallons_per_minute=flow,
         baffling_factor=bf,
+        concentration_mg_per_liter=0.8,
+        temperature_celsius=0.5,
+        ph=6.0,
     )
     assert (
         pytest.approx(
@@ -207,7 +222,7 @@ def test_calculate_giardia_log_inactivation():
         (300000, 10, 7.5, 5000, 0.7, 1.2, 0.368),
     ],
 )
-def test_full_results_giardia(gallons, temp, ph, flow, bf, conc, ratio):
+def test_full_results(gallons, temp, ph, flow, bf, conc, ratio):
     options = py_d.DisinfectionSegmentOptions(
         volume_gallons=gallons,
         peak_hourly_flow_gallons_per_minute=flow,
@@ -218,8 +233,8 @@ def test_full_results_giardia(gallons, temp, ph, flow, bf, conc, ratio):
         agent=py_d.DisinfectantAgent.FREE_CHLORINE,
     )
     segment = py_d.DisinfectionSegment(options)
-    results = segment.analyze(target=py_d.DisinfectionTarget.GIARDIA)
-    assert pytest.approx(results["ct_ratio"], rel=ratio / 100) == ratio
+    results = segment.analyze()
+    assert pytest.approx(results["giardia_ct_ratio"], rel=ratio / 100) == ratio
 
 
 # def test_ct_required_viruses_free_chlorine():

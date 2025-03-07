@@ -42,9 +42,6 @@ def analyze_segment(
         "--method",
         help="Estimation method: conservative, interpolation, regression",
     ),
-    target: str = typer.Option(
-        ..., "-T", "--target", help="Disinfection target: giardia, viruses"
-    ),
     agent: str = typer.Option(
         ...,
         "-a",
@@ -73,11 +70,6 @@ def analyze_segment(
             "[red]Invalid agent. Use 'free_chlorine', 'chlorine_dioxide', or 'chloramines'.[/red]"
         )
         return
-    if method not in {"conservative", "interpolation", "regression"}:
-        console.print(
-            "[red]Invalid method. Use 'conservative', 'interpolation', or 'regression'.[/red]"
-        )
-        return
 
     agent_enum = DisinfectantAgent[agent.upper()]
     method_enum = CTReqEstimator[method.upper()]
@@ -95,7 +87,13 @@ def analyze_segment(
     )
 
     segment = DisinfectionSegment(options)
-    results = segment.analyze()
+
+    results = None
+    try:
+        results = segment.analyze()
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
+        return
 
     if json_output:
         jparams = options.__json__()

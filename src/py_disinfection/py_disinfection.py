@@ -8,6 +8,10 @@ from py_disinfection.estimation import (
     interpolate_giardia_ct,
     regression_giardia_ct,
     conservative_viruses_ct,
+    conservative_giardia_chlorine_dioxide_ct,
+    conservative_viruses_chlorine_dioxide_ct,
+    conservative_giardia_chloramines_ct,
+    conservative_viruses_chloramines_ct,
 )
 
 
@@ -160,26 +164,54 @@ class DisinfectionSegment:
                 self.options.concentration_mg_per_liter,
             )
 
+    def _required_ct_giardia_chlorine_dioxide(self):
+        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
+            return conservative_giardia_chlorine_dioxide_ct(
+                self.options.temperature_celsius
+            )
+        raise InvalidEstimatorError(
+            f"{self.options.ctreq_estimator.name} not supported for giardia and chlorine dioxide"
+        )
+
+    def _required_ct_giardia_chloramines(self):
+        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
+            return conservative_giardia_chloramines_ct(self.options.temperature_celsius)
+        raise InvalidEstimatorError(
+            f"{self.options.ctreq_estimator.name} not supported for giardia and chloramines"
+        )
+
     def _required_ct_viruses_free_chlorine(self):
         if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
             return conservative_viruses_ct(
                 self.options.temperature_celsius,
                 self.options.ph,
             )
-        # elif self.options.ctreq_estimator == CTReqEstimator.INTERPOLATION:
-        #     return interpolate_ct(
-        #         self.options.temperature_celsius,
-        #         self.options.ph,
-        #         self.options.concentration_mg_per_liter,
-        #     )
-        # elif self.options.ctreq_estimator == CTReqEstimator.REGRESSION:
-        #     return regression_ct(
-        #         self.options.temperature_celsius,
-        #         self.options.ph,
-        #         self.options.concentration_mg_per_liter,
-        #     )
+        raise InvalidEstimatorError(
+            f"{self.options.ctreq_estimator.name} not supported for viruses and free chlorine"
+        )
+
+    def _required_ct_viruses_chlorine_dioxide(self):
+        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
+            return conservative_viruses_chlorine_dioxide_ct(
+                self.options.temperature_celsius,
+            )
+        raise InvalidEstimatorError(
+            f"{self.options.ctreq_estimator.name} not supported for viruses and chlorine dioxide"
+        )
+
+    def _required_ct_viruses_chloramines(self):
+        if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
+            return conservative_viruses_chloramines_ct(
+                self.options.temperature_celsius,
+            )
+        raise InvalidEstimatorError(
+            f"{self.options.ctreq_estimator.name} not supported for viruses and chloramines"
+        )
 
     def calculate_log_inactivation_ratio(self, target: DisinfectionTarget):
+        required_ct = self.required_ct(target)
+        if required_ct == 0:
+            return math.inf
         return self.calculate_ct() / self.required_ct(target)
 
     def calculate_log_inactivation(self, target: DisinfectionTarget):
