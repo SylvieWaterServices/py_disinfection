@@ -1,12 +1,11 @@
-from calendar import c
 import pytest
 
+import py_disinfection.core as py_d
 from py_disinfection.estimation import (
     conservative_giardia_ct,
     interpolate_giardia_ct,
     regression_giardia_ct,
 )
-import py_disinfection.core as py_d
 
 
 @pytest.mark.parametrize(

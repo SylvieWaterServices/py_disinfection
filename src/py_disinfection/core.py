@@ -2,17 +2,19 @@
 
 import math
 from enum import Enum
+from typing import Dict
+
 from pydantic import BaseModel, Field
 
 from py_disinfection.estimation import (
+    conservative_giardia_chloramines_ct,
+    conservative_giardia_chlorine_dioxide_ct,
     conservative_giardia_ct,
+    conservative_viruses_chloramines_ct,
+    conservative_viruses_chlorine_dioxide_ct,
+    conservative_viruses_ct,
     interpolate_giardia_ct,
     regression_giardia_ct,
-    conservative_viruses_ct,
-    conservative_giardia_chlorine_dioxide_ct,
-    conservative_viruses_chlorine_dioxide_ct,
-    conservative_giardia_chloramines_ct,
-    conservative_viruses_chloramines_ct,
 )
 
 
@@ -21,16 +23,25 @@ class DisinfectantAgent(Enum):
     CHLORINE_DIOXIDE = "chlorine_dioxide"
     CHLORAMINES = "chloramines"
 
+    def __json__(self) -> str:
+        return self.name
+
 
 class DisinfectionTarget(Enum):
     VIRUSES = "viruses"
     GIARDIA = "giardia"
+
+    def __json__(self) -> str:
+        return self.name
 
 
 class CTReqEstimator(Enum):
     CONSERVATIVE = "conservative"
     INTERPOLATION = "interpolation"
     REGRESSION = "regression"
+
+    def __json__(self) -> str:
+        return self.name
 
 
 DEFAULT_DISINFECTION_AGENT = DisinfectantAgent.FREE_CHLORINE
@@ -60,7 +71,7 @@ class DisinfectionSegmentOptions(BaseModel):
     agent: DisinfectantAgent = Field(..., description="Disinfectant agent")
     ctreq_estimator: CTReqEstimator = Field(..., description="Estimation method")
 
-    def __json__(self):
+    def __json__(self) -> Dict[str, float | str]:
         return {
             "agent": self.agent.name,
             "volume_gallons": self.volume_gallons,
@@ -77,7 +88,7 @@ class DisinfectionSegment:
     def __init__(self, options: DisinfectionSegmentOptions):
         self.options = options
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"DisinfectionSegment(agent={self.options.agent}, volume_gallons={self.options.volume_gallons}, "
             f"temperature_celsius={self.options.temperature_celsius}, ph={self.options.ph}, "
@@ -85,31 +96,31 @@ class DisinfectionSegment:
             f"peak_hourly_flow_gallons_per_minute={self.options.peak_hourly_flow_gallons_per_minute}, estimator={self.options.ctreq_estimator})"
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def calculate_tdt(self):
+    def calculate_tdt(self) -> float:
         return (
             self.options.volume_gallons
             / self.options.peak_hourly_flow_gallons_per_minute
         )
 
-    def calculate_contact_time(self):
+    def calculate_contact_time(self) -> float:
         return self.calculate_tdt() * self.options.baffling_factor
 
     def calculate_ct(
         self,
-    ):
+    ) -> float:
         return self.calculate_contact_time() * self.options.concentration_mg_per_liter
 
-    def required_ct(self, target: DisinfectionTarget):
+    def required_ct(self, target: DisinfectionTarget) -> float:
         if target == DisinfectionTarget.GIARDIA:
             return self._required_ct_giardia()
         elif target == DisinfectionTarget.VIRUSES:
             return self._required_ct_viruses()
         raise InvalidTargetError(f"Invalid disinfection target: {target}")
 
-    def _required_ct_giardia(self):
+    def _required_ct_giardia(self) -> float:
         if self.options.agent == DisinfectantAgent.FREE_CHLORINE:
             return self._required_ct_giardia_free_chlorine()
         elif self.options.agent == DisinfectantAgent.CHLORINE_DIOXIDE:
@@ -118,7 +129,7 @@ class DisinfectionSegment:
             return self._required_ct_giardia_chloramines()
         raise InvalidAgentError(f"Invalid disinfectant agent: {self.options.agent}")
 
-    def _required_ct_viruses(self):
+    def _required_ct_viruses(self) -> float:
         if self.options.agent == DisinfectantAgent.FREE_CHLORINE:
             return self._required_ct_viruses_free_chlorine()
         elif self.options.agent == DisinfectantAgent.CHLORINE_DIOXIDE:
@@ -127,13 +138,13 @@ class DisinfectionSegment:
             return self._required_ct_viruses_chloramines()
         raise InvalidAgentError(f"Invalid disinfectant agent: {self.options.agent}")
 
-    def _roundDownToNearest(self, x, base=5):
+    def _roundDownToNearest(self, x: float, base: int = 5) -> float:
         return base * math.floor(x / base)
 
-    def _roundUpToNearest(self, x, base=5):
+    def _roundUpToNearest(self, x: float, base: int = 5) -> float:
         return base * math.ceil(x / base)
 
-    def _required_ct_giardia_free_chlorine(self):
+    def _required_ct_giardia_free_chlorine(self) -> float:
         if self.options.ctreq_estimator == CTReqEstimator.CONSERVATIVE:
             return conservative_giardia_ct(
                 self.options.temperature_celsius,
@@ -153,45 +164,44 @@ class DisinfectionSegment:
                 self.options.concentration_mg_per_liter,
             )
 
-    def _required_ct_giardia_chlorine_dioxide(self):
-
+    def _required_ct_giardia_chlorine_dioxide(self) -> float:
         return conservative_giardia_chlorine_dioxide_ct(
             self.options.temperature_celsius
         )
 
-    def _required_ct_giardia_chloramines(self):
+    def _required_ct_giardia_chloramines(self) -> float:
         return conservative_giardia_chloramines_ct(self.options.temperature_celsius)
 
-    def _required_ct_viruses_free_chlorine(self):
+    def _required_ct_viruses_free_chlorine(self) -> float:
         return conservative_viruses_ct(
             self.options.temperature_celsius,
             self.options.ph,
         )
 
-    def _required_ct_viruses_chlorine_dioxide(self):
+    def _required_ct_viruses_chlorine_dioxide(self) -> float:
         return conservative_viruses_chlorine_dioxide_ct(
             self.options.temperature_celsius,
         )
 
-    def _required_ct_viruses_chloramines(self):
+    def _required_ct_viruses_chloramines(self) -> float:
         return conservative_viruses_chloramines_ct(
             self.options.temperature_celsius,
         )
 
-    def calculate_log_inactivation_ratio(self, target: DisinfectionTarget):
+    def calculate_log_inactivation_ratio(self, target: DisinfectionTarget) -> float:
         required_ct = self.required_ct(target)
         if required_ct == 0:
             return math.inf
         return self.calculate_ct() / self.required_ct(target)
 
-    def calculate_log_inactivation(self, target: DisinfectionTarget):
+    def calculate_log_inactivation(self, target: DisinfectionTarget) -> float:
         if target == DisinfectionTarget.GIARDIA:
             return 3 * self.calculate_log_inactivation_ratio(target)
         elif target == DisinfectionTarget.VIRUSES:
             return 4 * self.calculate_log_inactivation_ratio(target)
         raise InvalidTargetError(f"Invalid disinfection target: {target}")
 
-    def analyze(self):
+    def analyze(self) -> Dict[str, float]:
         results = {}
         results["tdt"] = self.calculate_tdt()
         results["contact_time"] = self.calculate_contact_time()

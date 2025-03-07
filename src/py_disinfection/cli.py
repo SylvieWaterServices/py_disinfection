@@ -1,14 +1,15 @@
 """Console script for py_disinfection."""
 
 import json
+
 import typer
 from rich.console import Console
 
 from py_disinfection.core import (
     CTReqEstimator,
+    DisinfectantAgent,
     DisinfectionSegment,
     DisinfectionSegmentOptions,
-    DisinfectantAgent,
 )
 
 app = typer.Typer(
@@ -57,7 +58,7 @@ def analyze_segment(
     json_output: bool = typer.Option(
         False, "--json", help="Print output in JSON format"
     ),
-):
+) -> None:
     """Analyze a disinfection segment and print results."""
     if method not in {"conservative", "interpolation", "regression"}:
         console.print(
@@ -92,10 +93,10 @@ def analyze_segment(
         results = segment.analyze()
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
-        return
+        return None
 
     if json_output:
-        jparams = options.__json__()
+        jparams = json.loads(json.dumps(options))
         jparams["temp_fahrenheit"] = temp_celsius * 9 / 5 + 32
         total_results = {"parameters": jparams, "results": results}
         console.print(json.dumps(total_results, indent=4))

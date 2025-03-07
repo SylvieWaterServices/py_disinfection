@@ -4,8 +4,8 @@
 <!-- .. image:: https://img.shields.io/pypi/v/py_disinfection.svg
         :target: https://pypi.python.org/pypi/py_disinfection
 
-.. image:: https://img.shields.io/travis/toddrbryan/py_disinfection.svg
-        :target: https://travis-ci.com/toddrbryan/py_disinfection
+.. image:: https://img.shields.io/travis/SylvieWaterServices/py_disinfection.svg
+        :target: https://travis-ci.com/SylvieWaterServices/py_disinfection
 
 .. image:: https://readthedocs.org/projects/py-disinfection/badge/?version=latest
         :target: https://py-disinfection.readthedocs.io/en/latest/?version=latest
@@ -90,22 +90,42 @@ You can also run calculations using the command-line tool:
 #### **Basic Usage**
 
 ```sh
-disinfect -v 1000 -t 10 -u C -p 7.0 -c 0.5 -m interpolation -T giardia -a free_chlorine -b 0.3 -f 20
+disinfect -v 1000 -t 10 -u C -p 7.0 -c 0.5 -m interpolation -a free_chlorine -b 0.3 -f 20
 ```
 
 #### **Output in JSON Format**
 
 ```sh
-disinfect -v 1000 -t 10 -u C -p 7.0 -c 0.5 -m interpolation -T giardia -a free_chlorine -b 0.3 -f 20 --json
+disinfect -v 1000 -t 10 -u C -p 7.0 -c 0.5 -m interpolation -a free_chlorine -b 0.3 -f 20 --json
 ```
 
 Output:
 
 ```json
 {
-    "Required CT": 126.5,
-    "Actual CT": 134,
-    "Meets Requirement": true
+    "parameters": {
+        "agent": "FREE_CHLORINE",
+        "volume_gallons": 1000.0,
+        "temperature_celsius": 10.0,
+        "ph": 7.0,
+        "concentration_mg_per_liter": 0.5,
+        "peak_hourly_flow_gallons_per_minute": 20.0,
+        "ctreq_estimator": "INTERPOLATION",
+        "baffling_factor": 0.3,
+        "temp_fahrenheit": 50.0
+    },
+    "results": {
+        "tdt": 50.0,
+        "contact_time": 15.0,
+        "viruses_required_ct": 6,
+        "viruses_calculated_ct": 7.5,
+        "viruses_ct_ratio": 1.25,
+        "viruses_log_inactivation": 5.0,
+        "giardia_required_ct": 105.5,
+        "giardia_calculated_ct": 7.5,
+        "giardia_ct_ratio": 0.07109004739336493,
+        "giardia_log_inactivation": 0.21327014218009477
+    }
 }
 ```
 

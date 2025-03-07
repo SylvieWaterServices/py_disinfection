@@ -1,17 +1,23 @@
-from calendar import c
 import math
+from typing import List, Tuple
+
 from py_disinfection.tables import (
-    giardia_ct_freechlorine,
-    virus_ct_freechlorine,
-    giardia_ct_chlorinedioxide,
-    virus_ct_chlorinedioxide,
     giardia_ct_chloramines,
+    giardia_ct_chlorinedioxide,
+    giardia_ct_freechlorine,
     virus_ct_chloramines,
+    virus_ct_chlorinedioxide,
+    virus_ct_freechlorine,
 )
 
-
 # Conservative Method
-def conservative_giardia_ct(temp, ph, chlorine_conc):
+"""
+This function calculates the conservatively estimated CT value for 3-log Giardia inactivation using free chlorine.
+The function takes the temperature, pH, and free chlorine concentration as input and returns the CT value.
+"""
+
+
+def conservative_giardia_ct(temp: float, ph: float, chlorine_conc: float) -> float:
     rounded_temp = max(t for t in giardia_ct_freechlorine.keys() if t <= temp)
     rounded_chlorine = min(
         c for c in giardia_ct_freechlorine[rounded_temp].keys() if c >= chlorine_conc
@@ -25,12 +31,15 @@ def conservative_giardia_ct(temp, ph, chlorine_conc):
 
 
 # Interpolation Method
-def interpolate_giardia_ct(temp, ph, chlorine_conc):
-
-    def linear_interpolate(x1, x2, y1, y2, x):
+def interpolate_giardia_ct(temp: float, ph: float, chlorine_conc: float) -> float:
+    def linear_interpolate(
+        x1: float, x2: float, y1: float, y2: float, x: float
+    ) -> float:
         return y1 + (y2 - y1) * ((x - x1) / (x2 - x1)) if x2 != x1 else y1
 
-    def find_next_lowest_and_highest(values, target):
+    def find_next_lowest_and_highest(
+        values: List[float], target: float
+    ) -> Tuple[float, float]:
         lower = max([v for v in values if v <= target], default=values[0])
         upper = min([v for v in values if v >= target], default=values[-1])
         return lower, upper
@@ -94,7 +103,9 @@ def interpolate_giardia_ct(temp, ph, chlorine_conc):
 
 
 # Regression Method
-def regression_giardia_ct(temp, ph, chlorine_conc, log_inactivation=3):
+def regression_giardia_ct(
+    temp: float, ph: float, chlorine_conc: float, log_inactivation: int = 3
+) -> float:
     if temp < 12.5:
         return (0.353 * log_inactivation) * (
             12.006 + math.exp(2.46 - 0.073 * temp + 0.125 * chlorine_conc + 0.389 * ph)
@@ -105,14 +116,14 @@ def regression_giardia_ct(temp, ph, chlorine_conc, log_inactivation=3):
         )
 
 
-def conservative_giardia_chlorine_dioxide_ct(temp):
+def conservative_giardia_chlorine_dioxide_ct(temp: float) -> float:
     rounded_temp = max(
         t for t in giardia_ct_chlorinedioxide.keys() if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
     return giardia_ct_chlorinedioxide[rounded_temp]
 
 
-def conservative_giardia_chloramines_ct(temp):
+def conservative_giardia_chloramines_ct(temp: float) -> float:
     rounded_temp = max(
         t for t in giardia_ct_chloramines.keys() if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
@@ -120,7 +131,7 @@ def conservative_giardia_chloramines_ct(temp):
 
 
 # Viruses
-def conservative_viruses_ct(temp, ph):
+def conservative_viruses_ct(temp: float, ph: float) -> float:
     rounded_temp = max(
         t for t in virus_ct_freechlorine.keys() if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
@@ -130,14 +141,14 @@ def conservative_viruses_ct(temp, ph):
     return virus_ct_freechlorine[rounded_temp][rounded_ph]
 
 
-def conservative_viruses_chlorine_dioxide_ct(temp):
+def conservative_viruses_chlorine_dioxide_ct(temp: float) -> float:
     rounded_temp = max(
         t for t in virus_ct_chlorinedioxide.keys() if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
     return virus_ct_chlorinedioxide[rounded_temp]
 
 
-def conservative_viruses_chloramines_ct(temp):
+def conservative_viruses_chloramines_ct(temp: float) -> float:
     rounded_temp = max(
         t for t in virus_ct_chloramines.keys() if t <= temp
     )  # Round down temperature - take the highest value of the values less than or equal to the temperature
