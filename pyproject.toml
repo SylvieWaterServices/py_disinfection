@@ -50,7 +50,6 @@ package-dir = {"" = "src"}
 
 [tool.mypy]
 files = "."
-
 # Use strict defaults
 strict = true
 warn_unreachable = true

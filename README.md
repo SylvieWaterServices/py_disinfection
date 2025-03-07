@@ -111,6 +111,12 @@ Output:
 
 ---
 
+## Features Coming Soon
+- Support for inactivation credits from filtration and other treatment steps
+- Ozone disinfection support
+- Ability to create multiple treatment segments, and calculate the sum parameters of all segments in a treatment chain
+- Expanded test suite
+
 ## Development & Contribution
 
 To contribute:
