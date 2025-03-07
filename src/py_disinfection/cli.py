@@ -74,22 +74,21 @@ def analyze_segment(
     agent_enum = DisinfectantAgent[agent.upper()]
     method_enum = CTReqEstimator[method.upper()]
     temp_celsius = convert_temperature(temp, temp_unit)
-
-    options = DisinfectionSegmentOptions(
-        volume_gallons=volume,
-        agent=agent_enum,
-        temperature_celsius=temp_celsius,
-        ph=ph,
-        concentration_mg_per_liter=chlorine,
-        ctreq_estimator=method_enum,
-        baffling_factor=baffling_factor,
-        peak_hourly_flow_gallons_per_minute=peak_flow,
-    )
-
-    segment = DisinfectionSegment(options)
-
     results = None
     try:
+        options = DisinfectionSegmentOptions(
+            volume_gallons=volume,
+            agent=agent_enum,
+            temperature_celsius=temp_celsius,
+            ph=ph,
+            concentration_mg_per_liter=chlorine,
+            ctreq_estimator=method_enum,
+            baffling_factor=baffling_factor,
+            peak_hourly_flow_gallons_per_minute=peak_flow,
+        )
+
+        segment = DisinfectionSegment(options)
+
         results = segment.analyze()
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")

@@ -1,3 +1,4 @@
+from calendar import c
 import pytest
 
 from py_disinfection.estimation import (
@@ -84,6 +85,8 @@ def test_tdt(gallons, flow, tdt):
         concentration_mg_per_liter=0.8,
         temperature_celsius=0.5,
         ph=6.0,
+        agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(py_d.DisinfectionSegment(options).calculate_tdt(), rel=tdt / 100)
@@ -111,6 +114,8 @@ def test_contact_time(gallons, flow, bf, contact_time):
         concentration_mg_per_liter=0.8,
         temperature_celsius=0.5,
         ph=6.0,
+        agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(
@@ -136,6 +141,8 @@ def test_ct(gallons, temp, ph, flow, bf, conc, ct):
         concentration_mg_per_liter=conc,
         temperature_celsius=temp,
         ph=ph,
+        agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(py_d.DisinfectionSegment(options).calculate_ct(), rel=ct / 100)
@@ -152,6 +159,7 @@ def test_ct_required_giardia_free_chlorine():
         temperature_celsius=0.5,
         ph=6.0,
         agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(
@@ -182,6 +190,7 @@ def test_calculate_giardia_log_inactivation_ratio(
         temperature_celsius=temp,
         ph=ph,
         agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(
@@ -203,6 +212,7 @@ def test_calculate_giardia_log_inactivation():
         temperature_celsius=0.5,
         ph=6.0,
         agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     assert (
         pytest.approx(
@@ -231,6 +241,7 @@ def test_full_results(gallons, temp, ph, flow, bf, conc, ratio):
         temperature_celsius=temp,
         ph=ph,
         agent=py_d.DisinfectantAgent.FREE_CHLORINE,
+        ctreq_estimator=py_d.CTReqEstimator.CONSERVATIVE,
     )
     segment = py_d.DisinfectionSegment(options)
     results = segment.analyze()

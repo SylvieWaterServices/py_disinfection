@@ -2,7 +2,8 @@
 
 import math
 from enum import Enum
-from os import name
+from pydantic import BaseModel, Field, field_validator
+
 from py_disinfection.estimation import (
     conservative_giardia_ct,
     interpolate_giardia_ct,
@@ -41,35 +42,23 @@ DEFAULT_PH = 7
 DEFAULT_CONCENTRATION_MG_PER_LITER = 1.0
 
 
-class DisinfectionSegmentOptions:
-    agent: DisinfectantAgent
-    ctreq_estimator: CTReqEstimator
-    volume_gallons: float
-    temperature_celsius: float
-    ph: float
-    concentration_mg_per_liter: float
-    baffling_factor: float
-    peak_hourly_flow_gallons_per_minute: float
-
-    def __init__(
-        self,
-        volume_gallons,
-        temperature_celsius,
-        ph,
-        concentration_mg_per_liter,
-        baffling_factor,
-        peak_hourly_flow_gallons_per_minute,
-        agent=DEFAULT_DISINFECTION_AGENT,
-        ctreq_estimator=DEFAULT_CTREQ_ESTIMATOR,
-    ):
-        self.agent = agent
-        self.volume_gallons = volume_gallons
-        self.temperature_celsius = temperature_celsius
-        self.ph = ph
-        self.concentration_mg_per_liter = concentration_mg_per_liter
-        self.peak_hourly_flow_gallons_per_minute = peak_hourly_flow_gallons_per_minute
-        self.ctreq_estimator = ctreq_estimator
-        self.baffling_factor = baffling_factor
+class DisinfectionSegmentOptions(BaseModel):
+    volume_gallons: float = Field(..., gt=0, description="Volume of water in gallons")
+    temperature_celsius: float = Field(
+        ..., ge=0, le=50, description="Water temperature in Celsius"
+    )
+    ph: float = Field(..., ge=6, le=9, description="pH level (6-9)")
+    concentration_mg_per_liter: float = Field(
+        ..., gt=0, description="Disinfectant concentration in mg/L"
+    )
+    baffling_factor: float = Field(
+        ..., ge=0.1, le=1.0, description="Baffling factor (0.1 - 1.0)"
+    )
+    peak_hourly_flow_gallons_per_minute: float = Field(
+        ..., gt=0, description="Peak flow rate in gallons per minute"
+    )
+    agent: DisinfectantAgent = Field(..., description="Disinfectant agent")
+    ctreq_estimator: CTReqEstimator = Field(..., description="Estimation method")
 
     def __json__(self):
         return {
