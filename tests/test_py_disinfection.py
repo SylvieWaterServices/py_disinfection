@@ -5,7 +5,7 @@ from py_disinfection.estimation import (
     interpolate_giardia_ct,
     regression_giardia_ct,
 )
-import py_disinfection.py_disinfection as py_d
+import py_disinfection.core as py_d
 
 
 @pytest.mark.parametrize(

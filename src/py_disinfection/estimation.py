@@ -1,6 +1,6 @@
 from calendar import c
 import math
-from py_disinfection.tables2 import (
+from py_disinfection.tables import (
     giardia_ct_freechlorine,
     virus_ct_freechlorine,
     giardia_ct_chlorinedioxide,
@@ -13,18 +13,14 @@ from py_disinfection.tables2 import (
 # Conservative Method
 def conservative_giardia_ct(temp, ph, chlorine_conc):
     rounded_temp = max(t for t in giardia_ct_freechlorine.keys() if t <= temp)
-    print(rounded_temp)
-    print(giardia_ct_freechlorine[rounded_temp])
     rounded_chlorine = min(
         c for c in giardia_ct_freechlorine[rounded_temp].keys() if c >= chlorine_conc
     )
-    print(rounded_chlorine)
     rounded_ph = min(
         p
         for p in giardia_ct_freechlorine[rounded_temp][rounded_chlorine].keys()
         if p >= ph
     )
-    print(rounded_ph)
     return giardia_ct_freechlorine[rounded_temp][rounded_chlorine][rounded_ph]
 
 

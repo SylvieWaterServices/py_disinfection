@@ -4,7 +4,7 @@ import json
 import typer
 from rich.console import Console
 
-from py_disinfection.py_disinfection import (
+from py_disinfection.core import (
     CTReqEstimator,
     DisinfectionSegment,
     DisinfectionSegmentOptions,
