@@ -29,8 +29,8 @@ bump_version:
 	sed -i.bak "s/^version = \".*\"/version = \"$$new_version\"/" pyproject.toml && \
 	rm -f pyproject.toml.bak && \
 	git add VERSION pyproject.toml && \
-	git commit -m "Bump version to ${new_version}" && \
-	git tag -a v$$new_version -m "Version ${new_version}" && \
+	git commit -m "Bump version to $${new_version}" && \
+	git tag -a v$$new_version -m "Version $${new_version}" && \
 	git push origin v$$version
 
 
