@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "py_disinfection"
-version = "0.1.9"
+version = "0.1.10"
 description = "Library and command to calculate detention times, disinfectant residuals, and CT ratios for drinking water systems"
 readme = "README.md"
 authors = [{ name = "Sylvie Water Systems", email = "hello@sylviewater.com" }]
